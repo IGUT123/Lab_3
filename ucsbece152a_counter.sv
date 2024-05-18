@@ -4,9 +4,8 @@ module ucsbece152a_counter #(
     input logic clk,  // Clock signal
     input logic rst,  // Reset signal, active high
     output logic [WIDTH-1:0] count_o,  // Output of the counter
-    // Part 2: Additional inputs for future features
-    input logic enable_i,  // Enable input
-    input logic dir_i  // Direction input (not used in this part)
+    input logic enable_i,  // Enable input to control counting
+    input logic dir_i  // Direction input, 0 for increment, 1 for decrement
 );
 
     // Internal register to hold the count value
@@ -18,15 +17,18 @@ module ucsbece152a_counter #(
             // Reset the counter to 0 when rst is high
             count <= 0;
         end else if (enable_i) begin
-            // Only increment the counter if it is enabled
-            if (count == (2**WIDTH - 1)) begin
-                // Wrap the counter to 0 when it reaches its maximum value
-                count <= 0;
+            // Only modify the counter if it is enabled
+            if (dir_i) begin
+                // Decrement the counter if dir_i is 1
+                if (count == 0) count <= (2**WIDTH - 1);  // Wrap to max if it's 0
+                else count <= count - 1;
             end else begin
-                // Increment the counter by 1
-                count <= count + 1;
+                // Increment the counter if dir_i is 0
+                if (count == (2**WIDTH - 1)) count <= 0;  // Wrap to 0 if max
+                else count <= count + 1;
             end
         end
+        // If enable_i is 0, do nothing (counter holds its value)
     end
 
     // Output assignment
